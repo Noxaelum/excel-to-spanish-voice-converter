@@ -1,0 +1,56 @@
+{
+  "name": "excel-to-spanish-voice-converter",
+  "version": "1.0.0",
+  "description": "excel to spanish voice converter using elevenLabs AI",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx --watch --env-file .env src/index.ts",
+    "start": "node --env.file .env dist/src/index.js",
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Noxaelum/excel-to-spanish-voice-converter.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Noxaelum/excel-to-spanish-voice-converter/issues"
+  },
+  "homepage": "https://github.com/Noxaelum/excel-to-spanish-voice-converter#readme",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@tsconfig/node22": "^22.0.1",
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.14.0",
+    "eslint": "^9.24.0",
+    "eslint-plugin-perfectionist": "^4.11.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
+    "prettier": "^3.5.3",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.29.1"
+  },
+  "imports": {
+    "#*": "./src/*"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": [
+      "eslint",
+      "prettier --write --ignore-unknown"
+    ],
+    "**/*.{json,yml,yaml,md}": [
+      "prettier --write --ignore-unknown"
+    ]
+  }
+}
