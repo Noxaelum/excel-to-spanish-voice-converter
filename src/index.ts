@@ -1,93 +1,14 @@
-/* eslint-disable */
-import { authorize } from "#utils/googleInit.js";
+import { createAudioStreamFromText } from "#utils/createAudioStreamFromText.js";
+import { delay } from "#utils/promisedDelay.js";
+import { uploadToDrive } from "#utils/uploadToDrive.js";
 import ngrok from "@ngrok/ngrok";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { ElevenLabsClient } from "elevenlabs";
 import express, { Request, Response } from "express";
-import { google } from "googleapis";
 import process from "process";
-import { Readable } from "stream";
 
 const app = express();
 const port = process.env.PORT ?? "3001";
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
-
-const elevenLabsClient = new ElevenLabsClient({
-  apiKey: ELEVENLABS_API_KEY,
-});
-
-if (!ELEVENLABS_API_KEY) {
-  throw new Error("Missing ELEVENLABS_API_KEY in environment variables");
-}
-
-const uploadToDrive = async (
-  audioStream: Readable | undefined,
-  name: string,
-) => {
-  try {
-    if (!audioStream) {
-      throw new Error("Invalid audioStream");
-    }
-    const authClient: any = await authorize();
-    const drive = google.drive({ auth: authClient, version: "v3" });
-
-    const res = await drive.files.create({
-      fields: "id, name",
-      media: {
-        body: audioStream,
-        mimeType: "audio/mpeg",
-      },
-      requestBody: {
-        name,
-      },
-    });
-
-    return res;
-  } catch (err) {
-    console.error("Upload to drive error");
-    throw err;
-  }
-};
-
-const createAudioStreamFromText = async (
-  text: string,
-): Promise<Readable | undefined> => {
-  try {
-    if (!text) {
-      throw new Error(`Invalid text for TTS: "${text}"`);
-    }
-    const audioStream = await elevenLabsClient.textToSpeech.convertAsStream(
-      "JBFqnCBsd6RMkjVDRZzb",
-      {
-        model_id: "eleven_multilingual_v2",
-        output_format: "mp3_44100_128",
-        text,
-        voice_settings: {
-          similarity_boost: 0,
-          speed: 1.0,
-          stability: 0,
-          use_speaker_boost: true,
-        },
-      },
-    );
-
-    const chunks: Buffer[] = [];
-    for await (const chunk of audioStream) {
-      chunks.push(chunk);
-    }
-
-    const content = Buffer.concat(chunks);
-
-    const stream = new Readable();
-    stream.push(content);
-    stream.push(null);
-    return stream;
-  } catch (err) {
-    console.error("ElevenLabs API error for text:", text);
-    throw err;
-  }
-};
 
 app.use(cors());
 app.use(cookieParser());
@@ -99,10 +20,8 @@ app.get("/api/v1", (req, res) => {
 
 app.route("/api/v1/convert").post(async (req: Request, res: Response) => {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const contentArr: { original: string; translation: string }[] = req.body;
-    const delay = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms));
-
     const result = [];
 
     for (const { original, translation } of contentArr) {
@@ -131,8 +50,11 @@ app.route("/api/v1/convert").post(async (req: Request, res: Response) => {
         result,
       });
     }
-  } catch (err: any) {
+  } catch (err) {
     console.error(err);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     res.status(err.statusCode ?? 500).json({ err });
   }
 });
@@ -144,6 +66,7 @@ app.listen(port, () => {
 ngrok
   .connect({ addr: port, authtoken_from_env: true })
   .then((listener) => {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     console.log(`Ingress established at: ${listener.url()}`);
   })
   .catch((error: unknown) => {
