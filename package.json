@@ -52,7 +52,7 @@
     "typescript-eslint": "^8.29.1"
   },
   "imports": {
-    "#*": "./dist/src/*"
+    "#*": "./src/*"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [

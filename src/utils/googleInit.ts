@@ -1,5 +1,5 @@
 /* eslint-disable */
-const fs = require("fs").promises;
+import fs from "fs/promises";
 import { authenticate } from "@google-cloud/local-auth";
 import { google } from "googleapis";
 import path from "path";
@@ -43,7 +43,7 @@ export async function authorize() {
  */
 async function loadSavedCredentialsIfExist() {
   try {
-    const content = await fs.readFile(TOKEN_PATH);
+    const content = await fs.readFile(TOKEN_PATH, "utf-8");
     const credentials = JSON.parse(content);
     return google.auth.fromJSON(credentials);
   } catch (err) {
@@ -59,7 +59,7 @@ async function loadSavedCredentialsIfExist() {
  */
 // @ts-ignore
 async function saveCredentials(client) {
-  const content = await fs.readFile(CREDENTIALS_PATH);
+  const content = await fs.readFile(CREDENTIALS_PATH, "utf-8");
   const keys = JSON.parse(content);
   const key = keys.installed || keys.web;
   const payload = JSON.stringify({
